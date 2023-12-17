@@ -8,7 +8,7 @@ const sendMail = async (from, to, subject, messageId, oAuth2Client) => {
       service: "gmail",
       auth: {
         type: "OAuth2",
-        user: "shashucr567@gmail.com",
+        user: process.env.USER,
         clientId: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
         refreshToken: process.env.REFRESH_TOKEN,

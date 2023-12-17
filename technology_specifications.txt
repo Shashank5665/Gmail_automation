@@ -1,0 +1,11 @@
+# Node.js and Express:
+In out project we use Node.js and Express. Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine. Express is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications. We use Node.js and Express to create a server that will handle the requests from the client and send back the appropriate responses.
+
+# Nodemailer:
+For handling email functionality in our project, we incorporated the Nodemailer module. This Node.js module provided a straightforward solution for sending emails programmatically. By integrating Nodemailer, we achieved a hassle-free approach to automating email responses, enhancing communication within our application.
+
+# Google APIs (Gmail API):
+To interact programmatically with Gmail services, we integrated Google APIs, specifically the Gmail API. This powerful set of tools offered by Google empowered our application to fetch email threads and apply labels to enhance our communication automation. Utilizing the Gmail API facilitated seamless integration with Gmail functionalities.
+
+# OAuth 2.0 Integration:
+In our project, we seamlessly integrated OAuth 2.0 for secure and delegated authorization. OAuth 2.0 is a widely adopted protocol that enables our application to access user data from external services without exposing sensitive credentials. We utilized OAuth 2.0 for authentication and authorization purposes, allowing users to grant our application limited access to their resources. Here out node application is the client and Gmail is the resource server. The user is the resource owner and the authorization server is Google.
