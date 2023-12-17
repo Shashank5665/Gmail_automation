@@ -62,7 +62,7 @@ const autoReply = async () => {
       maxResults: 1,
     });
 
-    // GOT 'N' NUMBER OF THREADS
+    // GET 'N' NUMBER OF THREADS
     let threads = res.data.threads;
     threads.forEach(async (thread) => {
       const threadId = thread.id;
@@ -71,7 +71,7 @@ const autoReply = async () => {
         id: threadId,
       });
 
-      // GOT ALL THE MESSAGE IN THE THREAD
+      // GET ALL THE MESSAGES IN THE THREAD
       const messages = res.data.messages;
 
       // FOR HEADER DETAILS, WE CAN GET IT FROM THE ANY ONE MESSAGE
@@ -173,9 +173,9 @@ function randomInterval() {
 }
 
 // FINALLY CALLING THE AUTO-REPLY FUNCTION
-// setInterval(() => {
-autoReply();
-// }, randomInterval());
+setInterval(() => {
+  autoReply();
+}, randomInterval());
 
 //------------------------------------------------------------------------------------------
 
