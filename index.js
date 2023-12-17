@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
 const PORT = process.env.PORT || 8000;
 
+//----------------------------------CONFIGURATION--------------------------------------------
 dotenv.config();
 const app = express();
 const oAuth2Client = new google.auth.OAuth2(
@@ -13,7 +14,7 @@ const oAuth2Client = new google.auth.OAuth2(
 );
 oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
 
-//-----------------------------------------------------------------------------------------
+//-------------------------------NOMAILER SEND MAIL FUNCTION----------------------------------
 
 //send email using nodemailer
 const sendMail = async (from, to, subject, messageId) => {
@@ -45,30 +46,35 @@ const sendMail = async (from, to, subject, messageId) => {
     console.log(error.message);
   }
 };
-//------------------------------------------------------------------------------------------
+//------------------------------GET MESSAGE HEADER VALUE--------------------------------------
 
 const getMessageHeaderValue = (headers, name) =>
   (headers.find((head) => head.name === name) || {}).value;
 
-//------------------------------------------------------------------------------------------
+//----------------------------------AUTO REPLY FUNCTION---------------------------------------
 
-//isolate the threads in which no prior reply has been sent by me
 const autoReply = async () => {
   try {
+    // CREATING GMAIL CLIENT FROM GOOGLE API
     const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
     const res = await gmail.users.threads.list({
       userId: "me",
       maxResults: 1,
     });
-    let threads = res.data.threads;
 
+    // GOT 'N' NUMBER OF THREADS
+    let threads = res.data.threads;
     threads.forEach(async (thread) => {
       const threadId = thread.id;
       const res = await gmail.users.threads.get({
         userId: "me",
         id: threadId,
       });
+
+      // GOT ALL THE MESSAGE IN THE THREAD
       const messages = res.data.messages;
+
+      // FOR HEADER DETAILS, WE CAN GET IT FROM THE ANY ONE MESSAGE
       const firstMessage = messages[0];
       const from = getMessageHeaderValue(firstMessage.payload.headers, "From");
       const to = getMessageHeaderValue(firstMessage.payload.headers, "To");
@@ -77,6 +83,7 @@ const autoReply = async () => {
         "Subject"
       );
 
+      // CHECK IF THE THREAD HAS THE SENT LABEL, IF YES, THAT MEANS WE HAVE ALREADY REPLIED TO THE THREAD
       let isSent = false;
       messages.forEach(async (message) => {
         const labels = message.labelIds;
@@ -85,22 +92,23 @@ const autoReply = async () => {
         }
       });
 
-      //if the thread does not have the sent label, send a reply saying "replying to you"
+      // IF WE HAVE ALREADY REPLIED TO THE THREAD, THEN DO NOTHING
       if (isSent) {
         console.log(
           `STEP1 : [ ALREADY REPLIED TO THREAD_ID : ${threadId} ✅ ]`
         );
         return;
       } else {
+        // IF WE HAVE NOT REPLIED TO THE THREAD, THEN SEND AUTO-REPLY
         console.log(`STEP1 : [ REPLYING TO THREAD_ID : ${threadId} ... ]`);
         await sendMail(to, from, subject, threadId);
         console.log("STEP2 : [ MAIL SENT SUCCESSFULLY! ✅ ]");
 
-        //check for a specific label, if its not present, create one
+        // GET ALL THE LABELS
         const res = await gmail.users.labels.list({ userId: "me" });
         const labels = res.data.labels;
 
-        // check if "vacation" name label is present
+        // CHECK IF THE "VACATION" LABEL IS PRESENT ( IN THIS CASE )
         let isLabelPresent = false;
         let vacationLabelId = "";
         labels.forEach((label) => {
@@ -110,13 +118,14 @@ const autoReply = async () => {
           }
         });
 
+        // GIVE OUT RELEVANT MESSAGES
         if (!isLabelPresent) {
           console.log("STEP3 : [ LABEL NOT PRESENT ❌ ]");
         } else {
           console.log("STEP3 : [ LABEL PRESENT ✅ ]");
         }
 
-        //if not present, create one
+        // IF THE LABEL IS NOT PRESENT, THEN CREATE THE LABEL
         if (!isLabelPresent) {
           const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
           const newLabel = await gmail.users.labels.create({
@@ -130,7 +139,7 @@ const autoReply = async () => {
           vacationLabelId = newLabel.data.id;
         }
 
-        //add the label to the thread
+        // ADD THE "VACATION" LABEL TO THE THREAD
         const labelAdded = await gmail.users.threads.modify({
           userId: "me",
           id: threadId,
@@ -139,7 +148,8 @@ const autoReply = async () => {
           },
         });
         console.log(`STEP4 : [ LABEL ADDED TO THREAD_ID : ${threadId} ✅ ]`);
-        //also remove the "unread" label from the thread
+
+        // REMOVE THE "UNREAD" LABEL FROM THE THREAD
         const labelRemoved = await gmail.users.threads.modify({
           userId: "me",
           id: threadId,
@@ -147,6 +157,8 @@ const autoReply = async () => {
             removeLabelIds: ["UNREAD"],
           },
         });
+
+        // RETURNING FROM THE CURRENT ITERATION ( LABEL ITERATION )
         return;
       }
     });
@@ -155,10 +167,12 @@ const autoReply = async () => {
   }
 };
 
+// GENERATING RANDOM INTERVAL BETWEEN 45 SECONDS TO 120 SECONDS
 function randomInterval() {
   return Math.floor(Math.random() * (120000 - 45000 + 1)) + 45000;
 }
 
+// FINALLY CALLING THE AUTO-REPLY FUNCTION
 // setInterval(() => {
 autoReply();
 // }, randomInterval());
