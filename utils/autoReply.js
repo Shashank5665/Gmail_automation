@@ -12,7 +12,7 @@ const autoReply = async (oAuth2Client) => {
     const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
     const res = await gmail.users.threads.list({
       userId: "me",
-      maxResults: 1,
+      maxResults: 5, //500
     });
 
     // GET 'N' NUMBER OF THREADS FROM OUT INBOX
