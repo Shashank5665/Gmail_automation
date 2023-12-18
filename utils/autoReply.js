@@ -15,6 +15,7 @@ const autoReply = async (oAuth2Client) => {
       maxResults: 1,
     });
 
+    // GET 'N' NUMBER OF THREADS FROM OUT INBOX
     let threads = res.data.threads;
     threads.forEach(async (thread) => {
       const threadId = thread.id;
@@ -23,6 +24,8 @@ const autoReply = async (oAuth2Client) => {
         id: threadId,
       });
 
+      // GET MESSAGES OF EACH THREADS,
+      // FOR HEADER VALUES, WE CAN JUST GET IT FROM ONE MESSAGE, FIRST MESSAGE IN THIS CASE
       const messages = res.data.messages;
       const firstMessage = messages[0];
       const from = getMessageHeaderValue(firstMessage.payload.headers, "From");
@@ -32,6 +35,7 @@ const autoReply = async (oAuth2Client) => {
         "Subject"
       );
 
+      // CHECK IF THE THREAD IS ALREADY REPLIED OR NOT
       let isSent = false;
       messages.forEach(async (message) => {
         const labels = message.labelIds;
@@ -40,14 +44,18 @@ const autoReply = async (oAuth2Client) => {
         }
       });
 
+      // IF THREAD IS ALREADY REPLIED, THEN JUST RETURN
       if (isSent) {
         console.log(
           `STEP1 : [ ALREADY REPLIED TO THREAD_ID : ${threadId} ✅ ]`
         );
         return;
+
+        // IF THREAD IS NOT REPLIED, THEN REPLY TO THE THREAD
       } else {
         console.log(`STEP1 : [ REPLYING TO THREAD_ID : ${threadId} ... ]`);
-        // const accessTokenForMail = await oAuth2Client.getAccessToken();
+
+        // SEND REPLY MAIL
         await sendMail(to, from, subject, threadId, oAuth2Client);
         console.log("STEP2 : [ MAIL SENT SUCCESSFULLY! ✅ ]");
 
@@ -60,6 +68,7 @@ const autoReply = async (oAuth2Client) => {
         );
         console.log(`STEP4 : [ LABEL ADDED TO THREAD_ID : ${threadId} ✅ ]`);
 
+        // REMOVE 'UNREAD' LABEL FROM THE THREAD ( SO THAT WE DON'T REPLY TO THE SAME THREAD AGAIN)
         const labelRemoved = await gmail.users.threads.modify({
           userId: "me",
           id: threadId,

@@ -12,6 +12,7 @@ const createLabel = async (oAuth2Client) => {
   let isLabelPresent = false;
   let vacationLabelId = "";
 
+  // CHECK FOR 'vacation' LABEL
   labels.forEach((label) => {
     if (label.name === "vacation") {
       isLabelPresent = true;
@@ -19,6 +20,7 @@ const createLabel = async (oAuth2Client) => {
     }
   });
 
+  // IF 'vacation' LABEL IS NOT PRESENT, THEN CREATE ONE
   if (!isLabelPresent) {
     const newLabel = await gmail.users.labels.create({
       userId: "me",
@@ -34,6 +36,7 @@ const createLabel = async (oAuth2Client) => {
   return vacationLabelId;
 };
 
+// ADD 'vacation' LABEL TO THE THREAD
 const addLabelToThread = async (threadId, labelId, oAuth2Client) => {
   const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
   await gmail.users.threads.modify({
