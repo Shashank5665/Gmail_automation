@@ -20,7 +20,7 @@ const sendMail = async (from, to, subject, messageId, oAuth2Client) => {
       from: from,
       to: to,
       subject: `Re: ${subject}`,
-      text: "This is an auto-generated email. Please do not reply to this email. \n\nThank you.",
+      text: "Hello there, please note that I am on a vacation, I will get back to you after the vacation. \n\nThank you.",
       inReplyTo: messageId,
       references: messageId,
     };
