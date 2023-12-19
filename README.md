@@ -9,10 +9,10 @@ Features :
 * Fetches a specified number of email threads from your Gmail inbox.
 * Processes each thread to perform certain actions.
 * Sends automated replies using Google's Gmail API.
-* Will repeatedly checks for incoming emails.
+* Will repeatedly check for incoming emails in a given interval of time.
 
 Improvements :
 
 * Scalability when more number of emails are present.
-* Improvements in performance.
+* performance improvements.
 * More number of additional features can be implemented with the help of Gmail APIs.
